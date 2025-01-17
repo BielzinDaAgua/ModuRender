@@ -2,6 +2,8 @@ package br.edu.ifpb.pps.projeto.modumender;
 
 import br.edu.ifpb.pps.projeto.modumender.services.*;
 import br.edu.ifpb.pps.projeto.modumender.models.*;
+import br.edu.ifpb.pps.projeto.modumender.util.MigrationManager;
+
 import java.sql.SQLException;
 import java.util.List;
 
@@ -12,8 +14,12 @@ public class ModuRender {
     private static final MatriculaService matriculaService = new MatriculaService();
     private static final AvaliacaoService avaliacaoService = new AvaliacaoService();
     private static final CertificadoService certificadoService = new CertificadoService();
-
     private static final CategoriaService categoriaService = new CategoriaService();
+
+    static {
+        // Criar as tabelas automaticamente ao carregar o framework
+        MigrationManager.criarTabelas();
+    }
 
 
     // Método para salvar entidades no banco
