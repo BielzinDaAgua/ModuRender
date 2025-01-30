@@ -142,4 +142,7 @@ public class GenericDAO<T> {
             throw new SQLException("Erro ao mapear ResultSet para entidade", e);
         }
     }
+
+    public void deleteById(int i) {
+    }
 }

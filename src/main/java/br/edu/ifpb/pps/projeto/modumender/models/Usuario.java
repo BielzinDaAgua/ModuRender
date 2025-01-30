@@ -1,10 +1,26 @@
 package br.edu.ifpb.pps.projeto.modumender.models;
 
+import br.edu.ifpb.pps.projeto.modumender.Entity;
+import br.edu.ifpb.pps.projeto.modumender.Id;
+import br.edu.ifpb.pps.projeto.modumender.Column;
+
+@Entity(tableName = "Usuario")
 public class Usuario {
+
+    @Id
+    @Column(name = "id", nullable = false)
     private int id;
+
+    @Column(name = "nome", nullable = false)
     private String nome;
+
+    @Column(name = "email", nullable = false)
     private String email;
+
+    @Column(name = "senha", nullable = false)
     private String senha;
+
+    @Column(name = "tipo_usuario", nullable = false)
     private String tipoUsuario; // "ALUNO" ou "INSTRUTOR"
 
     public Usuario() {}

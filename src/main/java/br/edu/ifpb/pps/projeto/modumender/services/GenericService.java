@@ -26,5 +26,8 @@ public class GenericService<T> {
         return genericDAO.findAll();
     }
 
+    public void deleteById(int i) {
+    }
+
     // Implementar métodos adicionais, caso necessário, como filtros avançados
 }
