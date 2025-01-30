@@ -1,31 +1,30 @@
 package br.edu.ifpb.pps.projeto.modumender.services;
-
-import br.edu.ifpb.pps.projeto.modumender.ModuRender;
+import br.edu.ifpb.pps.projeto.modumender.dao.GenericDAO;
 
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Map;
 
 public class GenericService<T> {
-    private final Class<T> clazz;
+    private final GenericDAO<T> genericDAO;
 
     public GenericService(Class<T> clazz) {
-        this.clazz = clazz;
+        this.genericDAO = new GenericDAO<>(clazz);
     }
 
+    // Salvar uma entidade
     public void save(T entity) throws SQLException {
-        ModuRender.save(entity);
+        genericDAO.save(entity);
     }
 
+    // Buscar uma entidade pelo ID
     public T findById(int id) throws SQLException {
-        return ModuRender.findById(clazz, id);
+        return genericDAO.findById(id);
     }
 
+    // Listar todas as entidades
     public List<T> findAll() throws SQLException {
-        return ModuRender.findAll(clazz);
+        return genericDAO.findAll();
     }
 
-    public List<T> findWithFilters(Map<String, Object> filters, String orderBy, boolean ascending, String joinClause) throws SQLException {
-        return ModuRender.findWithFilters(clazz, filters, orderBy, ascending, joinClause);
-    }
+    // Implementar métodos adicionais, caso necessário, como filtros avançados
 }
