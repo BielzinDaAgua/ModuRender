@@ -7,7 +7,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * Classe base para DAO, contendo métodos comuns.
+ */
 public abstract class BaseDAO {
+
     protected Connection getConnection() throws SQLException {
         return ConexaoDB.getInstance();
     }

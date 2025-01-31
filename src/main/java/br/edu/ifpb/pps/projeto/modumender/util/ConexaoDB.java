@@ -1,6 +1,5 @@
 package br.edu.ifpb.pps.projeto.modumender.util;
 
-
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.sql.Connection;
@@ -16,7 +15,7 @@ public class ConexaoDB {
 
     static {
         try {
-            // Carregar configurações do arquivo application.properties
+            // Carrega propriedades do arquivo application.properties
             Properties properties = new Properties();
             properties.load(new FileInputStream("src/main/resources/application.properties"));
 

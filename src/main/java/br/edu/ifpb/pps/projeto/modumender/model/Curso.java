@@ -1,16 +1,39 @@
-package br.edu.ifpb.pps.projeto.modumender.models;
+package br.edu.ifpb.pps.projeto.modumender.model;
+
+import br.edu.ifpb.pps.projeto.modumender.annotations.Column;
+import br.edu.ifpb.pps.projeto.modumender.annotations.Entity;
+import br.edu.ifpb.pps.projeto.modumender.annotations.Id;
 
 import java.sql.Date;
 
+@Entity(tableName = "cursos")
 public class Curso {
+
+    @Id
+    @Column(name = "id", nullable = false)
     private int id;
+
+    @Column(name = "titulo", nullable = false)
     private String titulo;
+
+    @Column(name = "descricao")
     private String descricao;
+
+    @Column(name = "preco", nullable = false)
     private double preco;
-    private Date dataCriacao; // Alterado de String para java.sql.Date
+
+    @Column(name = "data_criacao", nullable = false)
+    private Date dataCriacao;
+
+    // Se quiser relacionar instrutor, poderia usar:
+    // @ManyToOne(referencedColumnName = "id")
+    // private Usuario instrutor;
+    // Mas, aqui vamos apenas manter o ID ou se preferir, troque para ManyToOne.
+    @Column(name = "instrutor_id", nullable = false)
     private int instrutorId;
 
-    public Curso() {}
+    public Curso() {
+    }
 
     public Curso(int id, String titulo, String descricao, double preco, Date dataCriacao, int instrutorId) {
         this.id = id;
@@ -25,7 +48,6 @@ public class Curso {
     public int getId() {
         return id;
     }
-
     public void setId(int id) {
         this.id = id;
     }
@@ -33,7 +55,6 @@ public class Curso {
     public String getTitulo() {
         return titulo;
     }
-
     public void setTitulo(String titulo) {
         this.titulo = titulo;
     }
@@ -41,7 +62,6 @@ public class Curso {
     public String getDescricao() {
         return descricao;
     }
-
     public void setDescricao(String descricao) {
         this.descricao = descricao;
     }
@@ -49,7 +69,6 @@ public class Curso {
     public double getPreco() {
         return preco;
     }
-
     public void setPreco(double preco) {
         this.preco = preco;
     }
@@ -57,7 +76,6 @@ public class Curso {
     public Date getDataCriacao() {
         return dataCriacao;
     }
-
     public void setDataCriacao(Date dataCriacao) {
         this.dataCriacao = dataCriacao;
     }
@@ -65,7 +83,6 @@ public class Curso {
     public int getInstrutorId() {
         return instrutorId;
     }
-
     public void setInstrutorId(int instrutorId) {
         this.instrutorId = instrutorId;
     }

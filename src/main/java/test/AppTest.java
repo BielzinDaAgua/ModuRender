@@ -3,7 +3,7 @@ package test;
 import br.edu.ifpb.pps.projeto.modumender.services.GenericService;
 import br.edu.ifpb.pps.projeto.modumender.util.ConexaoDB;
 import br.edu.ifpb.pps.projeto.modumender.services.ServiceFactory;
-import br.edu.ifpb.pps.projeto.modumender.models.Usuario;
+import br.edu.ifpb.pps.projeto.modumender.model.Usuario;
 
 import java.sql.Connection;
 import java.sql.SQLException;

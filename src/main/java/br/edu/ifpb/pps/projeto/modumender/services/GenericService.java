@@ -1,33 +1,41 @@
 package br.edu.ifpb.pps.projeto.modumender.services;
+
 import br.edu.ifpb.pps.projeto.modumender.dao.GenericDAO;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 
+/**
+ * Camada de serviço genérica que chama os DAOs,
+ * podendo ter validações adicionais, lógica de negócio, etc.
+ */
 public class GenericService<T> {
-    private final GenericDAO<T> genericDAO;
+
+    private final GenericDAO<T> dao;
 
     public GenericService(Class<T> clazz) {
-        this.genericDAO = new GenericDAO<>(clazz);
+        this.dao = new GenericDAO<>(clazz);
     }
 
-    // Salvar uma entidade
     public void save(T entity) throws SQLException {
-        genericDAO.save(entity);
+        // Se quiser adicionar validações de negócio antes de salvar, faça aqui
+        dao.save(entity);
     }
 
-    // Buscar uma entidade pelo ID
     public T findById(int id) throws SQLException {
-        return genericDAO.findById(id);
+        return dao.findById(id);
     }
 
-    // Listar todas as entidades
     public List<T> findAll() throws SQLException {
-        return genericDAO.findAll();
+        return dao.findAll();
     }
 
-    public void deleteById(int i) {
+    public List<T> findWithFilters(Map<String, Object> filters, String orderBy, boolean ascending) throws SQLException {
+        return dao.findWithFilters(filters, orderBy, ascending);
     }
 
-    // Implementar métodos adicionais, caso necessário, como filtros avançados
+    public void deleteById(int id) throws SQLException {
+        dao.deleteById(id);
+    }
 }
