@@ -3,6 +3,7 @@ package br.edu.ifpb.pps.projeto.modumender.model;
 import br.edu.ifpb.pps.projeto.modumender.annotations.Column;
 import br.edu.ifpb.pps.projeto.modumender.annotations.Entity;
 import br.edu.ifpb.pps.projeto.modumender.annotations.Id;
+import br.edu.ifpb.pps.projeto.modumender.annotations.Length;
 
 @Entity(tableName = "usuarios")
 public class Usuario {
@@ -12,15 +13,19 @@ public class Usuario {
     private int id;
 
     @Column(name = "nome", nullable = false)
+    @Length(min = 3, max = 50) // Nome deve ter entre 3 e 50 caracteres
     private String nome;
 
     @Column(name = "email", nullable = false)
+    @Length(min = 5, max = 100) // Email deve ter entre 5 e 100 caracteres
     private String email;
 
     @Column(name = "senha", nullable = false)
+    @Length(min = 6, max = 20) // Senha deve ter 6 a 20 caracteres
     private String senha;
 
     @Column(name = "tipo_usuario", nullable = false)
+    @Length(min = 5, max = 9) // "ALUNO" (5) ou "INSTRUTOR" (9)
     private String tipoUsuario; // "ALUNO" ou "INSTRUTOR"
 
     public Usuario() {

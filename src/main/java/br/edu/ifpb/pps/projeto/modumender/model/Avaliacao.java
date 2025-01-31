@@ -18,9 +18,12 @@ public class Avaliacao {
     private Curso curso;
 
     @Column(name = "nota", nullable = false)
+    @Min(0)
+    @Max(10)  // nota deve estar entre 0 e 10
     private int nota;
 
     @Column(name = "comentario")
+    @Length(min = 3, max = 200) // opcional, ex.: deve ter entre 3 e 200 chars se preenchido
     private String comentario;
 
     @Column(name = "data_avaliacao", nullable = false)
