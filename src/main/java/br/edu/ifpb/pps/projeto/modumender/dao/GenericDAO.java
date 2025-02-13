@@ -22,7 +22,7 @@ import java.util.Map;
  * em entidades anotadas com @Entity,
  * com validações extras (Min, Max, Length, etc.).
  */
-public class GenericDAO<T> extends BaseDAO {
+public class GenericDAO<T> extends BaseDAO implements CrudRepository<T>  {
 
     private final Class<T> clazz;
 
