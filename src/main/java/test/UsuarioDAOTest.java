@@ -21,7 +21,7 @@ public class UsuarioDAOTest {
     @BeforeAll
     public static void setup() {
         // Inicia o framework (gera tabelas)
-        ModuRender.inicializar();
+        //ModuRender.inicializar();
         // Cria o DAO generico para Usuario
         usuarioDAO = new GenericDAO<>(Usuario.class);
     }

@@ -25,18 +25,7 @@
             <version>42.6.0</version>
         </dependency>
 
-        <!-- Dependência para Logback (opcional para logs no futuro) -->
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>1.2.11</version>
-        </dependency>
 
-        <dependency>
-            <groupId>jakarta.persistence</groupId>
-            <artifactId>jakarta.persistence-api</artifactId>
-            <version>3.1.0</version>
-        </dependency>
 
 
         <!-- Dependência do Reflections -->

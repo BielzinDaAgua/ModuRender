@@ -1,19 +1,24 @@
 package br.edu.ifpb.pps.projeto.modumender.util;
 
-import br.edu.ifpb.pps.projeto.modumender.annotations.*;
-import br.edu.ifpb.pps.projeto.modumender.util.SQLUtils;
+import br.edu.ifpb.pps.projeto.modumender.annotations.Column;
+import br.edu.ifpb.pps.projeto.modumender.annotations.Entity;
+import br.edu.ifpb.pps.projeto.modumender.annotations.Id;
+
 import org.reflections.Reflections;
+
 import java.lang.reflect.Field;
-import java.sql.SQLException;
 import java.util.Set;
 
+/**
+ * Responsável por criar as tabelas das entidades (colunas + PK).
+ */
 public class TableGenerator {
 
-    public static void generateTables() {
-        System.out.println("🔸 Iniciando geração das tabelas...");
-        Reflections reflections = new Reflections("br.edu.ifpb.pps.projeto.modumender.model");
-        Set<Class<?>> entityClasses = reflections.getTypesAnnotatedWith(Entity.class);
-
+    /**
+     * Cria as tabelas (para cada classe) usando reflection.
+     */
+    public static void generateTables(Set<Class<?>> entityClasses) {
+        System.out.println("🔸 Iniciando criação das tabelas...");
         for (Class<?> entityClass : entityClasses) {
             createTableForEntity(entityClass);
         }
@@ -21,6 +26,7 @@ public class TableGenerator {
     }
 
     private static void createTableForEntity(Class<?> clazz) {
+        // Só processa se tiver @Entity
         if (!clazz.isAnnotationPresent(Entity.class)) {
             return;
         }
@@ -35,21 +41,35 @@ public class TableGenerator {
             Id idAnn = field.getAnnotation(Id.class);
             Column colAnn = field.getAnnotation(Column.class);
 
+            // Se não for @Id ou @Column, pula
             if (idAnn == null && colAnn == null) {
                 continue;
             }
 
+            // Descobre o nome da coluna
             String columnName = SQLUtils.getColumnName(field);
+
             if (idAnn != null) {
+                // PK => assumimos SERIAL
                 if (hasPrimaryKey) {
-                    throw new IllegalArgumentException("Mais de um @Id na classe: " + clazz.getName());
+                    throw new IllegalArgumentException(
+                            "Mais de um @Id encontrado em " + clazz.getName()
+                    );
                 }
                 hasPrimaryKey = true;
                 sql.append(columnName).append(" SERIAL PRIMARY KEY, ");
             } else {
+                // Campo normal
                 String sqlType = SQLUtils.getSqlType(field.getType());
+                if (sqlType == null) {
+                    throw new IllegalArgumentException(
+                            "Tipo não suportado: " + field.getType().getSimpleName()
+                                    + " em " + clazz.getName() + "." + field.getName()
+                    );
+                }
                 sql.append(columnName).append(" ").append(sqlType);
 
+                // Tratando se pode ser null ou não
                 if (!colAnn.nullable()) {
                     sql.append(" NOT NULL");
                 }
@@ -58,11 +78,15 @@ public class TableGenerator {
         }
 
         if (!hasPrimaryKey) {
-            throw new IllegalArgumentException("Nenhum campo @Id encontrado em " + clazz.getName());
+            throw new IllegalArgumentException(
+                    "Nenhum campo @Id encontrado em " + clazz.getName()
+            );
         }
 
+        // Remove a última vírgula
         SQLUtils.removeTrailingComma(sql);
         sql.append(");");
+
         SQLUtils.executeSQL(sql.toString(), "Criar Tabela: " + tableName);
     }
 }
