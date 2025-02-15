@@ -6,7 +6,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
 
 /**
  * Classe base para DAO, contendo métodos comuns.
@@ -16,12 +15,6 @@ public abstract class BaseDAO {
     protected Connection getConnection() throws SQLException {
         return ConexaoDB.getInstance();
     }
-
-
-
-
-
-
 
     protected void closeResources(Connection conn, PreparedStatement stmt, ResultSet rs) {
         try {

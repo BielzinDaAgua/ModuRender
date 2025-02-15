@@ -9,4 +9,3 @@ public interface CrudRepository<T> {
     List<T> findAll() throws SQLException;
     void deleteById(int id) throws SQLException;
 }
-// usar no genericdao

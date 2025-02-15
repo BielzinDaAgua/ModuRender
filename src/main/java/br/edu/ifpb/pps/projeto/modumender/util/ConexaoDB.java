@@ -7,6 +7,9 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
+/**
+ * Padrão Singleton para gerenciar a conexão com o BD.
+ */
 public class ConexaoDB {
     private static Connection conexao;
     private static String URL;
