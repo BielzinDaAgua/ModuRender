@@ -1,6 +1,7 @@
 package br.edu.ifpb.pps.projeto.modumender.servidor;
 
 import jakarta.servlet.Servlet;
+import org.apache.catalina.Context;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.WebResourceRoot;
 import org.apache.catalina.core.StandardContext;
@@ -11,7 +12,7 @@ import java.io.File;
 
 public class TomcatServer {
     private Tomcat tomcat;
-    private final int port = 8080; // Porta do servidor
+    private int port = 8080; // Porta do servidor
 
     public void start() {
         try {
@@ -22,9 +23,12 @@ public class TomcatServer {
             String tempDir = System.getProperty("java.io.tmpdir");
             tomcat.setBaseDir(tempDir);
 
-            // Criando o contexto do Tomcat
-            StandardContext ctx = (StandardContext) tomcat.addWebapp("", new File(tempDir).getAbsolutePath());
-            System.out.println("📂 Contexto criado em: " + tempDir);
+            // Criando contexto do Tomcat
+            StandardContext ctx = (StandardContext) tomcat.addWebapp("/", new File(tempDir).getAbsolutePath());
+            System.out.println("📂 Contexto criado em: " + new File(tempDir).getAbsolutePath());
+
+            // Evita erro de JSP se não precisar de JSP
+            ctx.setConfigured(false);
 
             // Configurando recursos da aplicação
             WebResourceRoot resources = new StandardRoot(ctx);
@@ -38,7 +42,6 @@ public class TomcatServer {
             tomcat.start();
             System.out.println("🚀 Servidor iniciado na porta " + port);
             System.out.println("✅ Acesse http://localhost:" + port + "/test para verificar!");
-
             tomcat.getServer().await(); // Mantém o servidor rodando
         } catch (LifecycleException e) {
             e.printStackTrace();
