@@ -6,11 +6,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Mapeia um método de um controlador para uma URL específica.
+ * Mapeia um método de um controlador para uma URL específica
+ * e método HTTP (GET, POST, etc.).
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Route {
-    String path();    // Define o caminho da URL
-    String method();  // Define o método HTTP (GET, POST, etc.)
+    String path();   // Ex.: "/hello"
+    String method(); // Ex.: "GET", "POST", etc.
 }
