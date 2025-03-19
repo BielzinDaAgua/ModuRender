@@ -82,8 +82,11 @@
                 <artifactId>jetty-servlet</artifactId>
                 <version>11.0.14</version>
             </dependency>
-
-            <!-- Reflections, se já usa -->
+        <dependency>
+            <groupId>org.thymeleaf</groupId>
+            <artifactId>thymeleaf</artifactId>
+            <version>3.1.2.RELEASE</version>
+        </dependency><!-- Reflections, se já usa -->
             <dependency>
                 <groupId>org.reflections</groupId>
                 <artifactId>reflections</artifactId>
