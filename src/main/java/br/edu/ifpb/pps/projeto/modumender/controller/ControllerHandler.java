@@ -18,11 +18,16 @@ public class ControllerHandler {
         this.method = method;
     }
 
+    public Class<?> getControllerClass() {
+        return this.controllerClass;
+    }
+
     public Object invoke(HttpRequest request, HttpResponse response) throws Exception {
         if (controllerClass == null || method == null) {
             throw new IllegalStateException("ControllerHandler sem classe/método!");
         }
         Object instance = controllerClass.getDeclaredConstructor().newInstance();
+
         Class<?>[] paramTypes = method.getParameterTypes();
         if (paramTypes.length == 2
                 && paramTypes[0].equals(HttpRequest.class)
@@ -38,5 +43,4 @@ public class ControllerHandler {
         }
         throw new IllegalArgumentException("Método do controlador com parâmetros não suportados: " + method);
     }
-
 }

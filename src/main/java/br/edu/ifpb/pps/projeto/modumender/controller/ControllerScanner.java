@@ -1,11 +1,13 @@
 package br.edu.ifpb.pps.projeto.modumender.controller;
 
 import br.edu.ifpb.pps.projeto.modumender.annotations.Controller;
+import br.edu.ifpb.pps.projeto.modumender.annotations.RestController;
 import br.edu.ifpb.pps.projeto.modumender.annotations.Route;
 import org.reflections.Reflections;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -22,14 +24,19 @@ public class ControllerScanner {
      */
     public static void scanControllers(String basePackage) {
         Reflections reflections = new Reflections(basePackage);
-        Set<Class<?>> controllerClasses = reflections.getTypesAnnotatedWith(Controller.class);
 
-        System.out.println("📌 Controladores encontrados:");
-        for (Class<?> ctrlClass : controllerClasses) {
-            System.out.println("  🔹 " + ctrlClass.getName());
-        }
+        // Encontrar classes @Controller
+        Set<Class<?>> ctrlClasses = reflections.getTypesAnnotatedWith(Controller.class);
 
-        for (Class<?> ctrlClass : controllerClasses) {
+        // Encontrar classes @RestController
+        Set<Class<?>> restClasses = reflections.getTypesAnnotatedWith(RestController.class);
+
+        // Unir ambos:
+        Set<Class<?>> all = new HashSet<>();
+        all.addAll(ctrlClasses);
+        all.addAll(restClasses);
+
+        for (Class<?> ctrlClass : all) {
             for (Method m : ctrlClass.getDeclaredMethods()) {
                 if (m.isAnnotationPresent(Route.class)) {
                     Route routeAnn = m.getAnnotation(Route.class);
@@ -40,12 +47,14 @@ public class ControllerScanner {
                     RouteDefinition def = new RouteDefinition(methodHttp, pathTempl, handler);
                     routeDefinitions.add(def);
 
-                    System.out.println("✅ Rota registrada: " + methodHttp + " " + pathTempl + " -> " + ctrlClass.getSimpleName() + "." + m.getName());
+                    System.out.println("Rota registrada (manual): "
+                            + methodHttp + ":" + pathTempl
+                            + " -> " + ctrlClass.getSimpleName() + "." + m.getName());
                 }
             }
         }
-
     }
+
 
 
     /**

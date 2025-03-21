@@ -36,8 +36,8 @@ public class JettyServer {
             context.addServlet(fwServletHolder, "/*");
 
             // 4) Registrar filter CookieAuthFilter
-            FilterHolder authFilterHolder = new FilterHolder(new CookieAuthFilter());
-            context.addFilter(authFilterHolder, "/*", EnumSet.of(DispatcherType.REQUEST));
+            //FilterHolder authFilterHolder = new FilterHolder(new CookieAuthFilter());
+            //context.addFilter(authFilterHolder, "/*", EnumSet.of(DispatcherType.REQUEST));
 
             // 5) Associar o context ao servidor
             server.setHandler(context);
@@ -53,8 +53,7 @@ public class JettyServer {
             // 8) Escanear CRUD Resources (ex.: UsuarioResource)
             CrudScanner.scanCrudResources("br.edu.ifpb.pps.projeto.modumender.resources");
 
-            // 9) Testar as rotas após a inicialização
-            testRoutes();
+
 
             // 10) Ficar aguardando
             server.join();
@@ -78,29 +77,11 @@ public class JettyServer {
 
 
 
-    private static void testRoutes() {
-        FrameworkServlet servlet = new FrameworkServlet();
-        System.out.println("\n🔬 Teste de correspondência de rotas:");
-        testRoute(servlet, "GET", "/login");
-        testRoute(servlet, "GET", "/hello");
-    }
 
-    private static void testRoute(FrameworkServlet servlet, String method, String path) {
-        System.out.println("\n📢 Testando rota " + method + " " + path);
-
-        ControllerHandler handler = servlet.testFindHandler(method, path);
-        if (handler != null) {
-            System.out.println("✅ Handler encontrado!");
-        } else {
-            System.out.println("❌ Nenhum handler encontrado!");
-        }
-    }
     public static void main(String[] args) {
         JettyServer js = new JettyServer();
         js.start();
 
-        // Teste manual
-        testRoutes();
     }
 
 }

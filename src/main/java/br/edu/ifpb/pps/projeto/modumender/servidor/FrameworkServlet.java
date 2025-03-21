@@ -10,6 +10,8 @@ import br.edu.ifpb.pps.projeto.modumender.crud.CrudResourceDefinition;
 import br.edu.ifpb.pps.projeto.modumender.http.HttpRequest;
 import br.edu.ifpb.pps.projeto.modumender.http.HttpResponse;
 import br.edu.ifpb.pps.projeto.modumender.template.TemplateRouteHandler;
+import br.edu.ifpb.pps.projeto.modumender.annotations.RestController;
+import br.edu.ifpb.pps.projeto.modumender.rest.JsonUtil;
 
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -70,22 +72,31 @@ public class FrameworkServlet extends HttpServlet {
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
+        // 1) Instanciar e chamar manualmente
+        CookieAuthFilter authChecker = new CookieAuthFilter();
+        boolean intercepted = authChecker.doAuthCheck(req, resp);
+        if (intercepted) {
+            // se doAuthCheck retornar true,
+            // a requisição foi bloqueada (401).
+            // então paramos aqui sem prosseguir
+            return;
+        }
+
+        // 2) Prosseguir com a lógica normal do FrameworkServlet
         String method = req.getMethod();
         String path   = req.getRequestURI();
-
-        System.out.println("📢 Requisição recebida: " + method + " " + path);
 
         HttpRequest  request  = new HttpRequest(req);
         HttpResponse response = new HttpResponse(resp);
 
-        // 🔹 Verificar se a requisição é para renderização de template
+        // Tenta TemplateRouteHandler
         String renderedTemplate = TemplateRouteHandler.handleRequest(path, request);
         if (renderedTemplate != null) {
             response.writeBody(renderedTemplate);
             return;
         }
 
-        // 🔹 Tenta achar um handler normal
+        // Tenta achar rota manual
         ControllerHandler handler = findMatchingHandler(method, path, request);
         if (handler == null) {
             resp.setStatus(404);
@@ -95,15 +106,46 @@ public class FrameworkServlet extends HttpServlet {
 
         try {
             Object result = handler.invoke(request, response);
-            if (result instanceof String) {
+            if (result == null) {
+                resp.setStatus(204); // No Content
+                return;
+            }
+
+            // Se for String e não rest, mandamos texto normal
+            if (result instanceof String && !isRestController(handler)) {
                 response.writeBody((String) result);
             }
+            // Se for de um @RestController e não String, serializamos em JSON
+            else if (isRestController(handler)) {
+                try {
+                    resp.setContentType("application/json");
+                    String json = JsonUtil.toJson(result);
+                    response.writeBody(json);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    resp.setStatus(500);
+                    response.writeBody("Erro ao gerar JSON: " + e.getMessage());
+                }
+            }
+            else {
+                // fallback: se for string mas rest controller => mandar text
+                // ou se for objeto mas controller => .toString()?
+                response.writeBody(result.toString());
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
             resp.setStatus(500);
             resp.getWriter().write("Erro interno: " + e.getMessage());
         }
     }
+
+    private boolean isRestController(ControllerHandler handler) {
+        Class<?> ctrlClass = handler.getControllerClass();
+        if (ctrlClass == null) return false;
+        return ctrlClass.isAnnotationPresent(RestController.class);
+    }
+
 
     private ControllerHandler findMatchingHandler(String method, String path, HttpRequest req) {
         for (RouteDefinition rd : routeDefinitions) {

@@ -1,12 +1,6 @@
 package br.edu.ifpb.pps.projeto.modumender.servidor;
 
 import br.edu.ifpb.pps.projeto.modumender.auth.AuthTokenUtil;
-import jakarta.servlet.Filter;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.FilterConfig;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -14,47 +8,47 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Exemplo de filtro que exige cookie authToken
- * para rotas exceto algumas livres.
+ * Classe para checar token em cookie authToken,
+ * sem usar a interface jakarta.servlet.Filter.
+ *
+ * Em vez disso, chamamos manualmente do FrameworkServlet.
  */
-public class CookieAuthFilter implements Filter {
+public class CookieAuthFilter {
 
-    @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-        System.out.println("CookieAuthFilter init");
-    }
-
-    @Override
-    public void doFilter(ServletRequest request, ServletResponse response,
-                         FilterChain chain)
-            throws IOException, ServletException {
-        HttpServletRequest req = (HttpServletRequest) request;
-        HttpServletResponse resp= (HttpServletResponse) response;
-
+    /**
+     * Retorna true se a requisição foi interceptada
+     * (ex.: sem token ou token inválido),
+     * significando que devemos encerrar a request.
+     * Se retornar false, podemos prosseguir normalmente.
+     */
+    public boolean doAuthCheck(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String path = req.getRequestURI();
-        // se rota for /login, /test, /hello => sem exigir token
+
+        // Rotas livres
         if (path.startsWith("/login")
                 || path.startsWith("/test")
                 || path.startsWith("/hello")) {
-            chain.doFilter(request, response);
-            return;
+            return false; // não intercepta
         }
 
+        // Checa cookie
         String token = getAuthToken(req.getCookies());
         if (token == null) {
             resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             resp.getWriter().write("Falta cookie authToken");
-            return;
+            return true; // Interceptamos, não prosseguir
         }
+
         String user = AuthTokenUtil.validateToken(token);
         if (user == null) {
             resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             resp.getWriter().write("Token inválido ou expirado");
-            return;
+            return true;
         }
-        // ok
+
+        // Se válido, coloca o usuário no request
         req.setAttribute("authUser", user);
-        chain.doFilter(request, response);
+        return false; // Não intercepta, pode prosseguir
     }
 
     private String getAuthToken(Cookie[] cookies) {
@@ -65,10 +59,5 @@ public class CookieAuthFilter implements Filter {
             }
         }
         return null;
-    }
-
-    @Override
-    public void destroy() {
-        System.out.println("CookieAuthFilter destroy");
     }
 }
