@@ -20,28 +20,27 @@ public class JettyServer {
             ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
             context.setContextPath("/");
 
-
-
-            // FrameworkServlet
-            context.addServlet(new ServletHolder("frameworkServlet", new FrameworkServlet()), "/*");
-
-            // Static content configuration
+            // Primeiro o servlet estático:
             ServletHolder staticHolder = new ServletHolder("static", DefaultServlet.class);
-            URL staticBaseURL = JettyServer.class.getClassLoader().getResource("static");
-            if (staticBaseURL == null) {
-                throw new RuntimeException("Pasta static não encontrada no classpath!");
-            }
-            String staticBase = staticBaseURL.toExternalForm();
+
+            // 👇 Forma mais segura de garantir localização correta dos arquivos estáticos:
+            String staticBase = JettyServer.class
+                    .getClassLoader()
+                    .getResource("static/")
+                    .toExternalForm();
+
             staticHolder.setInitParameter("resourceBase", staticBase);
             staticHolder.setInitParameter("dirAllowed", "true");
+            staticHolder.setInitParameter("pathInfoOnly", "true");
             context.addServlet(staticHolder, "/static/*");
 
+            // Depois o seu servlet principal (framework):
+            context.addServlet(new ServletHolder("frameworkServlet", new FrameworkServlet()), "/*");
+
             server.setHandler(context);
-
             server.start();
+
             System.out.println("🚀 JettyServer iniciado na porta " + port);
-
-
             ControllerScanner.scanControllers("br.edu.ifpb.pps.projeto.modumender.controller");
             CrudScanner.scanCrudResources("br.edu.ifpb.pps.projeto.modumender.resources");
 
@@ -51,6 +50,8 @@ public class JettyServer {
             e.printStackTrace();
         }
     }
+
+
 
     public void stop() {
         if (server != null && server.isRunning()) {
