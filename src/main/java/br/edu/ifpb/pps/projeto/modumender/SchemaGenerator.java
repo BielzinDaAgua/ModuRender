@@ -48,4 +48,10 @@ public class SchemaGenerator {
     public static String generateFindById(Class<?> clazz) {
         return br.edu.ifpb.pps.projeto.modumender.util.SQLUtils.generateFindById(clazz);
     }
+
+    public static <T> String generateUpdate(T entity) {
+        Class<?> clazz = entity.getClass();
+        return br.edu.ifpb.pps.projeto.modumender.util.SQLUtils.generateUpdate(clazz, entity);
+    }
+
 }

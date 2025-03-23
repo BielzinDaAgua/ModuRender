@@ -1,0 +1,64 @@
+<h2>Adicionar Novo Usuário</h2>
+<form id="userForm">
+    <label>Nome:</label>
+    <input type="text" id="nome" required>
+
+    <label>Email:</label>
+    <input type="email" id="email" required>
+
+    <label>Senha:</label>
+    <input type="password" id="senha" required>
+
+    <label>Tipo:</label>
+    <select id="tipoUsuario">
+        <option value="ALUNO">Aluno</option>
+        <option value="INSTRUTOR">Instrutor</option>
+    </select>
+
+    <button type="submit">Salvar</button>
+</form>
+
+<script>
+    document.getElementById("userForm").addEventListener("submit", async function(event) {
+        event.preventDefault();
+
+        const usuario = {
+            nome: document.getElementById("nome").value,
+            email: document.getElementById("email").value,
+            senha: document.getElementById("senha").value,
+            tipoUsuario: document.getElementById("tipoUsuario").value
+        };
+
+        const response = await fetch("/api/usuarios", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(usuario)
+        });
+
+        if (response.ok) {
+            alert("Usuário criado com sucesso!");
+            location.reload(); // Atualiza a página para mostrar na tabela
+        } else {
+            alert("Erro ao criar usuário!");
+        }
+    });
+</script>
+<td>
+    <button onclick="deleteUser([[${usuario.id}]])">Excluir</button>
+</td>
+
+<script>
+    async function deleteUser(id) {
+        if (!confirm("Tem certeza que deseja excluir este usuário?")) return;
+
+        const response = await fetch(`/api/usuarios/${id}`, { method: "DELETE" });
+
+        if (response.ok) {
+            alert("Usuário excluído com sucesso!");
+            location.reload();
+        } else {
+            alert("Erro ao excluir usuário!");
+        }
+    }
+</script>
+

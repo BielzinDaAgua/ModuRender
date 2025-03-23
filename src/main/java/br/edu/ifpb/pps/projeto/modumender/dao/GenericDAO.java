@@ -142,6 +142,35 @@ public class GenericDAO<T> extends BaseDAO implements CrudRepository<T> {
                 "O campo " + field.getName() + " não é numérico, mas tem @Min/@Max."
         );
     }
+    public void update(T entity) throws SQLException, IllegalAccessException {
+        String sql = SchemaGenerator.generateUpdate(entity);
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            Field[] fields = clazz.getDeclaredFields();
+            int index = 1;
+            Object idValue = null;
+
+            for (Field field : fields) {
+                if (field.isAnnotationPresent(Column.class)) {
+                    field.setAccessible(true);
+                    Object value = field.get(entity);
+                    validateField(field, value);
+                    stmt.setObject(index++, value);
+                } else if (field.isAnnotationPresent(Id.class)) {
+                    field.setAccessible(true);
+                    idValue = field.get(entity);
+                }
+            }
+
+            if (idValue == null) {
+                throw new SQLException("Entidade não possui um campo @Id definido.");
+            }
+            stmt.setObject(index, idValue);
+            stmt.executeUpdate();
+        }
+    }
+
 
     // =========================== READ ===========================
 

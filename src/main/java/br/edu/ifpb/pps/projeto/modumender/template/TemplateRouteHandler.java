@@ -1,13 +1,16 @@
 package br.edu.ifpb.pps.projeto.modumender.template;
 
 import br.edu.ifpb.pps.projeto.modumender.http.HttpRequest;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.function.Function;
 
 public class TemplateRouteHandler {
 
     // Mapa manual (opcional):
-    private static final Map<String, java.util.function.Function<HttpRequest, String>> templateRoutes = new HashMap<>();
+    private static final Map<String, Function<HttpRequest, String>> templateRoutes = new HashMap<>();
 
     static {
         // rotas manuais, se quiser
@@ -40,6 +43,21 @@ public class TemplateRouteHandler {
             }
 
             // Renderiza
+            String acceptHeader = request.getHeader("Accept");
+
+            if (acceptHeader != null && acceptHeader.contains("application/json")) {
+                try {
+
+
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    return objectMapper.writeValueAsString(model); // Retorna JSON
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return "{\"error\": \"Falha ao converter JSON\"}";
+                }
+            }
+
+            // Se não for JSON, renderiza HTML normalmente
             return TemplateRenderer.render(autoDef.getTemplateName(), model);
         }
 
@@ -49,7 +67,7 @@ public class TemplateRouteHandler {
             return handler.apply(request);
         }
 
-        // 3) Se não achar, null
-        return null;
+        // 3) Se não achar, retorna erro
+        return "404 - Página não encontrada";
     }
 }

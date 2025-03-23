@@ -88,7 +88,6 @@ public class FrameworkServlet extends HttpServlet {
 
         HttpRequest  request  = new HttpRequest(req);
         HttpResponse response = new HttpResponse(resp);
-
         // Tenta TemplateRouteHandler
         String renderedTemplate = TemplateRouteHandler.handleRequest(path, request);
         if (renderedTemplate != null) {

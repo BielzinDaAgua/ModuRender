@@ -10,6 +10,8 @@ import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Métodos auxiliares para gerar e executar SQL,
@@ -139,5 +141,34 @@ public class SQLUtils {
     public static String generateFindById(Class<?> clazz) {
         String tableName = getTableName(clazz);
         return "SELECT * FROM " + tableName + " WHERE id = ?";
+    }
+
+    public static <T> String generateUpdate(Class<?> clazz, T entity) {
+        String tableName = getTableName(clazz);
+        StringBuilder sql = new StringBuilder("UPDATE " + tableName + " SET ");
+
+        Field[] fields = clazz.getDeclaredFields();
+        List<String> updates = new ArrayList<>();
+        String idColumn = "id"; // Supondo que a chave primária seja "id"
+        Object idValue = null;
+
+        try {
+            for (Field field : fields) {
+                field.setAccessible(true);
+                Object value = field.get(entity);
+                if (field.getName().equalsIgnoreCase("id")) {
+                    idValue = value;
+                } else {
+                    updates.add(field.getName() + " = ?");
+                }
+            }
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException("Erro ao gerar SQL de UPDATE", e);
+        }
+
+        sql.append(String.join(", ", updates));
+        sql.append(" WHERE " + idColumn + " = ?");
+
+        return sql.toString();
     }
 }
