@@ -11,7 +11,7 @@ import java.lang.reflect.Method;
  */
 public class ControllerHandler {
     protected final Class<?> controllerClass;
-    protected final Method method;
+    public final Method method;
 
     public ControllerHandler(Class<?> controllerClass, Method method) {
         this.controllerClass = controllerClass;

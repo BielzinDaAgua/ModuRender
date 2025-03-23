@@ -1,64 +1,69 @@
-<h2>Adicionar Novo Usuário</h2>
-<form id="userForm">
-    <label>Nome:</label>
-    <input type="text" id="nome" required>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Gerenciar Usuários</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light p-4">
 
-    <label>Email:</label>
-    <input type="email" id="email" required>
+<div class="container">
 
-    <label>Senha:</label>
-    <input type="password" id="senha" required>
+    <!-- ALERTA de erro, inicialmente escondido -->
+    <div id="msgError" class="alert alert-danger d-none" role="alert"></div>
 
-    <label>Tipo:</label>
-    <select id="tipoUsuario">
-        <option value="ALUNO">Aluno</option>
-        <option value="INSTRUTOR">Instrutor</option>
-    </select>
+    <h2 class="mb-4 text-center">Adicionar Novo Usuário</h2>
+    <form id="userForm" class="card p-4 shadow-sm">
+        <div class="mb-3">
+            <label for="nome" class="form-label">Nome:</label>
+            <input type="text" id="nome" name="nome" class="form-control" required>
+        </div>
 
-    <button type="submit">Salvar</button>
-</form>
+        <div class="mb-3">
+            <label for="email" class="form-label">Email:</label>
+            <input type="email" id="email" name="email" class="form-control" required>
+        </div>
 
-<script>
-    document.getElementById("userForm").addEventListener("submit", async function(event) {
-        event.preventDefault();
+        <div class="mb-3">
+            <label for="senha" class="form-label">Senha:</label>
+            <input type="password" id="senha" name="senha" class="form-control" required>
+        </div>
 
-        const usuario = {
-            nome: document.getElementById("nome").value,
-            email: document.getElementById("email").value,
-            senha: document.getElementById("senha").value,
-            tipoUsuario: document.getElementById("tipoUsuario").value
-        };
+        <div class="mb-4">
+            <label for="tipoUsuario" class="form-label">Tipo:</label>
+            <select id="tipoUsuario" name="tipoUsuario" class="form-select">
+                <option value="ALUNO">Aluno</option>
+                <option value="INSTRUTOR">Instrutor</option>
+            </select>
+        </div>
 
-        const response = await fetch("/api/usuarios", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(usuario)
-        });
+        <button type="submit" class="btn btn-primary w-100">Salvar</button>
+    </form>
 
-        if (response.ok) {
-            alert("Usuário criado com sucesso!");
-            location.reload(); // Atualiza a página para mostrar na tabela
-        } else {
-            alert("Erro ao criar usuário!");
-        }
-    });
-</script>
-<td>
-    <button onclick="deleteUser([[${usuario.id}]])">Excluir</button>
-</td>
+    <hr class="my-5">
 
-<script>
-    async function deleteUser(id) {
-        if (!confirm("Tem certeza que deseja excluir este usuário?")) return;
+    <h2 class="mb-4 text-center">Lista de Usuários</h2>
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle text-center">
+            <thead class="table-dark">
+            <tr>
+                <th>Nome</th>
+                <th>Email</th>
+                <th>Tipo</th>
+                <th>Ações</th>
+            </tr>
+            </thead>
+            <tbody id="usuariosTableBody">
+            <!-- Conteúdo gerado via JavaScript -->
+            </tbody>
+        </table>
+    </div>
+</div>
 
-        const response = await fetch(`/api/usuarios/${id}`, { method: "DELETE" });
+<!-- Bootstrap Bundle (inclui JS + Popper) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/static/crud/script.js"></script>
 
-        if (response.ok) {
-            alert("Usuário excluído com sucesso!");
-            location.reload();
-        } else {
-            alert("Erro ao excluir usuário!");
-        }
-    }
-</script>
-
+</body>
+</html>

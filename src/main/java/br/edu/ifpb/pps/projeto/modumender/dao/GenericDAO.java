@@ -45,35 +45,59 @@ public class GenericDAO<T> extends BaseDAO implements CrudRepository<T> {
 
     // =========================== CREATE (save) ===========================
 
+
     @Override
     public void save(T entity) throws SQLException {
         String sql = SchemaGenerator.generateInsert(entity);
 
         try (Connection conn = getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             Field[] fields = clazz.getDeclaredFields();
             int index = 1;
 
             for (Field field : fields) {
-                if (field.isAnnotationPresent(Column.class) || field.isAnnotationPresent(Id.class)) {
-                    field.setAccessible(true);
+                field.setAccessible(true);
+                try {
+                    Object value = field.get(entity);
+                    boolean isId = field.isAnnotationPresent(Id.class);
 
-                    Object value;
-                    try {
-                        value = field.get(entity);
-                    } catch (IllegalAccessException e) {
-                        throw new SQLException("Erro ao acessar campo: " + field.getName(), e);
+                    if (isId && value == null) {
+                        continue; // Pula o ID se null
                     }
 
-                    validateField(field, value);
-                    stmt.setObject(index++, value);
+                    if (field.isAnnotationPresent(Column.class) || isId) {
+                        validateField(field, value);
+                        stmt.setObject(index++, value);
+                    }
+                } catch (IllegalAccessException e) {
+                    throw new SQLException("Erro ao acessar o campo: " + field.getName(), e);
                 }
             }
 
             stmt.executeUpdate();
+
+            // Recuperar ID gerado automaticamente
+            try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    Field idField = getIdField(clazz);
+                    idField.setAccessible(true);
+                    idField.set(entity, generatedKeys.getInt(1));
+                }
+            } catch (IllegalAccessException e) {
+                throw new SQLException("Erro ao definir o ID gerado automaticamente.", e);
+            }
         }
     }
+
+    private Field getIdField(Class<?> clazz) {
+        for (Field field : clazz.getDeclaredFields()) {
+            if (field.isAnnotationPresent(Id.class)) return field;
+        }
+        throw new RuntimeException("Campo @Id não encontrado na classe " + clazz.getSimpleName());
+    }
+
+
 
     private void validateField(Field field, Object value) {
         Column colAnn = field.getAnnotation(Column.class);

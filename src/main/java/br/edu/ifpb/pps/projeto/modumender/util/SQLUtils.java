@@ -112,26 +112,35 @@ public class SQLUtils {
         StringBuilder placeholders = new StringBuilder();
 
         Field[] fields = clazz.getDeclaredFields();
-        for (Field field : fields) {
-            field.setAccessible(true);
-            if (field.isAnnotationPresent(Id.class) || field.isAnnotationPresent(Column.class)) {
-                // Nome da coluna
-                String columnName = getColumnName(field);
+        try {
+            for (Field field : fields) {
+                field.setAccessible(true);
+                Object value = field.get(entity);
+                boolean isId = field.isAnnotationPresent(Id.class);
 
-                columns.append(columnName).append(", ");
-                placeholders.append("?, ");
+                if (isId && (value == null || (value instanceof Integer && (Integer)value == 0))) {
+                    continue; // Ignora o campo id quando é null ou zero
+                }
+
+                if (isId || field.isAnnotationPresent(Column.class)) {
+                    String columnName = getColumnName(field);
+                    columns.append(columnName).append(", ");
+                    placeholders.append("?, ");
+                }
             }
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException("Erro ao gerar SQL de INSERT", e);
         }
-        // Remove a última vírgula e espaço
+
         removeTrailingComma(columns);
         removeTrailingComma(placeholders);
 
-        String sql = String.format(
+        return String.format(
                 "INSERT INTO %s (%s) VALUES (%s)",
                 tableName, columns, placeholders
         );
-        return sql;
     }
+
 
     public static String generateFindAll(Class<?> clazz) {
         String tableName = getTableName(clazz);

@@ -68,6 +68,8 @@ public class TemplateRouteHandler {
         }
 
         // 3) Se não achar, retorna erro
-        return "404 - Página não encontrada";
+        // 3) Se não achar rota de template, retorne null:
+        return null;
+
     }
 }

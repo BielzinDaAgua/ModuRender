@@ -22,6 +22,10 @@ public class HttpResponse {
         rawResponse.getWriter().write(text);
     }
 
+    public void setContentType(String type) {
+        rawResponse.setContentType(type); // Método adicionado
+    }
+
     public HttpServletResponse getRawResponse() {
         return rawResponse;
     }

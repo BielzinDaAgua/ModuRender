@@ -41,8 +41,7 @@ public class JettyServer {
             server.start();
 
             System.out.println("🚀 JettyServer iniciado na porta " + port);
-            ControllerScanner.scanControllers("br.edu.ifpb.pps.projeto.modumender.controller");
-            CrudScanner.scanCrudResources("br.edu.ifpb.pps.projeto.modumender.resources");
+
 
             server.join();
 
