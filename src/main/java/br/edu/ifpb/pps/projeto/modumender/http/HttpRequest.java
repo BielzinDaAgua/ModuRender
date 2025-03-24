@@ -23,6 +23,7 @@ public class HttpRequest {
         );
     }
 
+    //pega um parâmetro da URL ou do corpo
     public String getParameter(String name) {
         return rawRequest.getParameter(name);
     }
@@ -31,14 +32,17 @@ public class HttpRequest {
         pathParams.put(key, value);
     }
 
+    //usado quando você define rotas com placeholders como /usuario/{id}
     public String getPathParam(String key) {
         return pathParams.get(key);
     }
 
+    //retorna o objeto original (HttpServletRequest) se precisar de algo mais avançado.
     public HttpServletRequest getRawRequest() {
         return rawRequest;
     }
 
+    //acessa um cabeçalho (ex: Accept, Authorization
     public String getHeader(String name) {
         return headers.get(name); // Agora não dá mais NullPointerException
     }

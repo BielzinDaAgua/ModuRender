@@ -66,10 +66,10 @@ public class FrameworkServlet extends HttpServlet {
                     new RouteCommandFunctional((req, resp) -> handler.delete(req, resp)), true));
 
 
-            System.out.println("🔄 CRUD rotas registradas: " + base);
+            System.out.println("CRUD rotas registradas: " + base);
         }
 
-        System.out.println("📌 Rotas finais registradas:");
+        System.out.println("Rotas finais registradas:");
         for (RouteDefinition rd : routeDefinitions) {
             System.out.println("   ➡ " + rd.getHttpMethod() + " " + rd.getPathTemplate());
         }
@@ -90,7 +90,7 @@ public class FrameworkServlet extends HttpServlet {
         CookieAuthFilter authChecker = new CookieAuthFilter();
         boolean intercepted = authChecker.doAuthCheck(req, resp);
         if (intercepted) {
-            System.out.println("⚠️ Requisição interceptada por auth");
+            System.out.println("Requisição interceptada por auth");
             return;
         }
 
@@ -101,17 +101,17 @@ public class FrameworkServlet extends HttpServlet {
         // Primeiro tenta renderizar algum Template (TemplateMethod)
         String renderedTemplate = TemplateRouteHandler.handleRequest(path, request);
         if (renderedTemplate != null) {
-            System.out.println("✅ Template encontrado para rota: " + path);
+            System.out.println("Template encontrado para rota: " + path);
             response.writeBody(renderedTemplate);
             return;
         } else {
-            System.out.println("❌ Nenhum template encontrado para rota: " + path);
+            System.out.println("Nenhum template encontrado para rota: " + path);
         }
 
         // Se não é template, procura um RouteCommand correspondente
         RouteCommand command = findMatchingCommand(method, path, request);
         if (command == null) {
-            System.out.println("❌ Nenhum comando encontrado para rota: " + method + " " + path);
+            System.out.println("Nenhum comando encontrado para rota: " + method + " " + path);
             resp.setStatus(404);
             resp.getWriter().write("Rota não encontrada: " + path);
             return;
@@ -120,12 +120,12 @@ public class FrameworkServlet extends HttpServlet {
         try {
             // Executa o comando
             Object result = command.execute(request, response);
-            System.out.println("✅ Resultado do comando: " + result);
+            System.out.println("Resultado do comando: " + result);
 
             // Se o comando retornou null e não setou status, é 204
             if (result == null) {
                 int currentStatus = resp.getStatus();
-                System.out.println("⚠️ Resultado é null, status atual=" + currentStatus);
+                System.out.println("Resultado é null, status atual=" + currentStatus);
                 if (currentStatus == 200) {
                     resp.setStatus(204);
                 }
@@ -137,7 +137,7 @@ public class FrameworkServlet extends HttpServlet {
                 resp.setContentType("application/json");
                 String json = JsonUtil.toJson(result);
                 response.writeBody(json);
-                System.out.println("✅ JSON enviado: " + json);
+                System.out.println("JSON enviado: " + json);
             } else {
                 // Retorno de texto simples
                 response.writeBody(result.toString());

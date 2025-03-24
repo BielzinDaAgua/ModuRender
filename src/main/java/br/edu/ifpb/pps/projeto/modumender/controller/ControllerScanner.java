@@ -67,7 +67,7 @@ public class ControllerScanner {
     }
 
     public static List<RouteDefinition> getRouteDefinitions() {
-        System.out.println("📜 Retornando rotas do ControllerScanner: " + routeDefinitions.size());
+        System.out.println("Retornando rotas do ControllerScanner: " + routeDefinitions.size());
         for (RouteDefinition rd : routeDefinitions) {
             System.out.println("   ➡ " + rd.getHttpMethod() + " " + rd.getPathTemplate());
         }

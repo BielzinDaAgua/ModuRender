@@ -1,5 +1,13 @@
 package br.edu.ifpb.pps.projeto.modumender.controller;
 
+
+/**
+ Representa uma rota HTTP concreta (GET /usuarios, POST /cadastro, etc).
+
+ Associa um método HTTP e uma URL com um comando (RouteCommand) específico.
+
+ Indica se a rota é REST ou não (importante para o tipo de resposta, como JSON).
+ */
 public class RouteDefinition {
     private final String httpMethod;
     private final String pathTemplate;

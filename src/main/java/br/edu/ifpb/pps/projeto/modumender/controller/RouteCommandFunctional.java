@@ -6,7 +6,11 @@ import br.edu.ifpb.pps.projeto.modumender.http.HttpResponse;
 import java.util.function.BiFunction;
 
 /**
- * Um Command simples que recebe uma função (lambda) e a executa.
+ Permite definir comandos para rotas usando funções lambda diretamente.
+
+ Mais simples e direto do que reflexão.
+
+ É útil quando você não precisa criar controllers inteiros, apenas ações isoladas rápidas.
  */
 public class RouteCommandFunctional implements RouteCommand {
 
@@ -23,3 +27,13 @@ public class RouteCommandFunctional implements RouteCommand {
         return function.apply(req, resp);
     }
 }
+
+/**
+ * Exemplo pratico
+
+ RouteCommand cmd = new RouteCommandFunctional((req, resp) -> {
+ return "Resposta rápida";
+ });
+
+ Ao acessar essa rota, a resposta sempre será "Resposta rápida".
+ */

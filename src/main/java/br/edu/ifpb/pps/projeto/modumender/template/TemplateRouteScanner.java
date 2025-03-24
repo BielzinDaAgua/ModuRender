@@ -4,6 +4,12 @@ import br.edu.ifpb.pps.projeto.modumender.annotations.TemplateRoute;
 import org.reflections.Reflections;
 import java.util.*;
 
+
+/**
+ Utiliza a biblioteca Reflections para escanear o pacote br.edu.ifpb.pps.projeto.modumender.views atrás de classes anotadas com @TemplateRoute.
+
+ Quando encontra uma classe anotada, associa automaticamente o caminho HTTP a um template.
+ */
 public class TemplateRouteScanner {
     private static final Map<String, TemplateAutoDefinition> routes = new HashMap<>();
 

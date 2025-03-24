@@ -8,8 +8,9 @@ import br.edu.ifpb.pps.projeto.modumender.http.HttpResponse;
  */
 public interface RouteCommand {
     /**
-     * Executa a lógica da rota.
-     * @return um objeto (por exemplo, uma entidade ou lista) que será serializado depois, ou null.
+     Define um comando que pode ser executado por uma rota HTTP específica.
+     Todo comando que responde a uma rota implementa esta interface.
+     Quando uma rota é acessada, o framework executa o método execute.
      */
     Object execute(HttpRequest req, HttpResponse resp) throws Exception;
 }

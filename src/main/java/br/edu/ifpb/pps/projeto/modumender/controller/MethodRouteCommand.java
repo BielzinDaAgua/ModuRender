@@ -7,7 +7,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
- * Implementação de Command que invoca um método do controller via reflexão.
+ Encapsular a invocação de métodos do controller usando reflexão.
+
+ É usada quando o seu framework define controllers com métodos específicos para cada rota.
+
+ Ao receber uma requisição, esta classe chama o método exato do controller correspondente à rota.
  */
 public class MethodRouteCommand implements RouteCommand {
 
@@ -24,6 +28,7 @@ public class MethodRouteCommand implements RouteCommand {
         return this.controllerInstance;
     }
 
+    //O método resolveArguments identifica quais argumentos o método do controller precisa (ex: HttpRequest ou HttpResponse) e injeta automaticamente.
     @Override
     public Object execute(HttpRequest req, HttpResponse resp) throws Exception {
         try {

@@ -6,6 +6,12 @@
 
     import java.util.Map;
 
+
+    /**
+      Classe responsável por renderizar HTML usando a biblioteca Thymeleaf.
+
+      Configura Thymeleaf para buscar templates no diretório templates/ com extensão .html.
+     */
     public class TemplateRenderer {
         private static final TemplateEngine templateEngine;
 

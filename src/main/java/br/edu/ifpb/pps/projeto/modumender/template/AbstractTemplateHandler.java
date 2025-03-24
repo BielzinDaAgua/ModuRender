@@ -8,6 +8,15 @@ import java.util.Map;
  * Define o "esqueleto" (template method) para lidar com requisições de template.
  * Subclasses só implementam os passos específicos (hooks).
  */
+
+/**
+ É uma classe abstrata que define o Template Method handleTemplateRequest.
+ Esse método estabelece a ordem em que as operações acontecem ao responder requisições.
+ Possui quatro "hooks" (métodos abstratos que devem ser implementados pelas subclasses):
+
+ Fluxo básico (handleTemplateRequest):
+ Encontrar definição - Gerar modelo - Renderizar saída.
+ **/
 public abstract class AbstractTemplateHandler {
 
     // Template Method: sequência final de passos para lidar com a rota de template
@@ -25,17 +34,17 @@ public abstract class AbstractTemplateHandler {
         return renderTemplate(def, model, request);
     }
 
-    // "Hook" 1: como localizar a definition
+    // "Hook" 1: Localizar se há definição associada à rota requisitada
     protected abstract TemplateAutoDefinition findTemplateDefinition(String path);
 
-    // "Hook" 2: como tratar se não houver definition
+    // "Hook" 2: Ação tomada se não houver definição encontrada
     protected abstract String handleNoDefinitionFound(String path, HttpRequest request);
 
-    // "Hook" 3: como montar o model (invocar buildModel, etc.)
+    // "Hook" 3: como montar o model de dados (invocar buildModel, etc.)
     protected Map<String, Object> buildModel(TemplateAutoDefinition def) {
         return TemplateUtils.invokeBuildModel(def); // veremos abaixo
     }
 
-    // "Hook" 4: como renderizar
+    // "Hook" 4: Renderizar a resposta final
     protected abstract String renderTemplate(TemplateAutoDefinition def, Map<String, Object> model, HttpRequest request);
 }

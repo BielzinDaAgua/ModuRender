@@ -40,7 +40,7 @@ public class JettyServer {
             server.setHandler(context);
             server.start();
 
-            System.out.println("🚀 JettyServer iniciado na porta " + port);
+            System.out.println("JettyServer iniciado na porta " + port);
 
 
             server.join();
@@ -56,7 +56,7 @@ public class JettyServer {
         if (server != null && server.isRunning()) {
             try {
                 server.stop();
-                System.out.println("🛑 JettyServer parado.");
+                System.out.println("JettyServer parado.");
             } catch (Exception e) {
                 e.printStackTrace();
             }

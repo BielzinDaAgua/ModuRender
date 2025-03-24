@@ -11,30 +11,36 @@ import java.util.function.Function;
  * Classe concreta que estende AbstractTemplateHandler (Template Method)
  * e, internamente, utiliza "Strategy" para escolher o tipo de resposta (JSON, HTML).
  */
+
+/**
+ Classe concreta que estende o AbstractTemplateHandler.
+
+ Implementa concretamente todos os hooks.
+
+ Usa a classe TemplateRouteScanner para buscar automaticamente rotas configuradas.
+
+ Utiliza o padrão Strategy para escolher o tipo de saída (HTML ou JSON).
+ */
+
 public class TemplateRouteHandler extends AbstractTemplateHandler {
 
-    // Mapa manual (opcional):
     private static final Map<String, Function<HttpRequest, String>> templateRoutes = new HashMap<>();
 
-    /**
-     * Método estático para quem chamar este handler diretamente.
-     */
+
+    //Método estático para quem chamar este handler diretamente.
     public static String handleRequest(String path, HttpRequest request) {
         TemplateRouteHandler handler = new TemplateRouteHandler();
         return handler.handleTemplateRequest(path, request);
     }
 
-    /**
-     * Hook 1: encontrar a definição (usamos a classe TemplateRouteScanner).
-     */
+
+    //Hook 1: Consulta TemplateRouteScanner para obter a definição. (usamos a classe TemplateRouteScanner).
     @Override
     protected TemplateAutoDefinition findTemplateDefinition(String path) {
         return TemplateRouteScanner.getDefinition(path);
     }
 
-    /**
-     * Hook 2: se não encontrar uma rota, verificamos as rotas manuais.
-     */
+    //Hook 2: Procura por rotas definidas manualmente ou retorna null se não encontrar
     @Override
     protected String handleNoDefinitionFound(String path, HttpRequest request) {
         var manual = templateRoutes.get(path);
@@ -44,9 +50,7 @@ public class TemplateRouteHandler extends AbstractTemplateHandler {
         return null; // não achou
     }
 
-    /**
-     * Hook 4: agora usando Strategy para gerar a saída (HTML ou JSON).
-     */
+    //Hook 4: Usa uma estratégia (HtmlResponseStrategy ou JsonResponseStrategy) de acordo com o Accept header
     @Override
     protected String renderTemplate(TemplateAutoDefinition def, Map<String, Object> model, HttpRequest request) {
         try {
@@ -66,6 +70,7 @@ public class TemplateRouteHandler extends AbstractTemplateHandler {
      * Método auxiliar para escolher a Strategy de saída (JSON ou HTML).
      * Você pode adicionar mais formatos se quiser.
      */
+
     private ResponseStrategy selectStrategy(String acceptHeader) {
         if (acceptHeader != null && acceptHeader.contains("application/json")) {
             // Se o header Accept contém "application/json", escolhemos JSON
