@@ -1,20 +1,30 @@
 package br.edu.ifpb.pps.projeto.modumender.controller;
 
-import java.util.Map;
-
-/**
- * Representa uma rota manual (httpMethod + pathTemplate)
- * e o handler que pode ser invocado (ControllerHandler).
- */
 public class RouteDefinition {
-    private final String httpMethod;     // ex.: "GET"
-    private final String pathTemplate;   // ex.: "/hello/{nome}"
-    private final ControllerHandler handler;
+    private final String httpMethod;
+    private final String pathTemplate;
+    private final RouteCommand command;
 
-    public RouteDefinition(String httpMethod, String pathTemplate, ControllerHandler handler) {
+    // Construtor “principal” – recebe um RouteCommand pronto
+    public RouteDefinition(String httpMethod, String pathTemplate, RouteCommand command) {
         this.httpMethod = httpMethod;
         this.pathTemplate = pathTemplate;
-        this.handler = handler;
+        this.command = command;
+    }
+
+    // Construtor “ponte” – recebe ControllerHandler e cria um RouteCommand
+    public RouteDefinition(String httpMethod, String pathTemplate, ControllerHandler handler) {
+        this(
+                httpMethod,
+                pathTemplate,
+                new RouteCommandFunctional((req, resp) -> {
+                    try {
+                        return handler.invoke(req, resp);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+        );
     }
 
     public String getHttpMethod() {
@@ -25,7 +35,7 @@ public class RouteDefinition {
         return pathTemplate;
     }
 
-    public ControllerHandler getHandler() {
-        return handler;
+    public RouteCommand getCommand() {
+        return command;
     }
 }

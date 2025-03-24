@@ -79,4 +79,20 @@ public class UsuarioRestController {
         return atualizado;
     }
 
+    @Route(path = "/api/usuarios/{id}", method = "DELETE")
+    public String delete(@PathParam("id") Integer id, HttpRequest req, HttpResponse resp) throws Exception {
+        GenericDAO<Usuario> dao = DAOFactory.createDAO(Usuario.class);
+        Usuario usuario = dao.findById(id);
+
+        if (usuario == null) {
+            resp.setStatus(404);
+            return "Usuário não encontrado!";
+        }
+
+        dao.deleteById(id);  // <--- USE deleteById aqui!
+        resp.setStatus(200);
+        return "Usuário deletado com sucesso!";
+    }
+
+
 }

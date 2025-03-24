@@ -3,73 +3,75 @@ package br.edu.ifpb.pps.projeto.modumender.template;
 import br.edu.ifpb.pps.projeto.modumender.http.HttpRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.lang.reflect.Method;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Function;
 
-public class TemplateRouteHandler {
+/**
+ * Classe concreta que estende AbstractTemplateHandler (Template Method)
+ * e, internamente, utiliza "Strategy" para escolher o tipo de resposta (JSON, HTML).
+ */
+public class TemplateRouteHandler extends AbstractTemplateHandler {
 
     // Mapa manual (opcional):
     private static final Map<String, Function<HttpRequest, String>> templateRoutes = new HashMap<>();
 
-    static {
-        // rotas manuais, se quiser
+    /**
+     * Método estático para quem chamar este handler diretamente.
+     */
+    public static String handleRequest(String path, HttpRequest request) {
+        TemplateRouteHandler handler = new TemplateRouteHandler();
+        return handler.handleTemplateRequest(path, request);
     }
 
-    public static String handleRequest(String path, HttpRequest request) {
-        // 1) Verifica se há route automática
-        TemplateAutoDefinition autoDef = TemplateRouteScanner.getDefinition(path);
-        if (autoDef != null) {
-            // Tenta invocar buildModel() da classe, se existir
-            Map<String,Object> model = Map.of(); // default
+    /**
+     * Hook 1: encontrar a definição (usamos a classe TemplateRouteScanner).
+     */
+    @Override
+    protected TemplateAutoDefinition findTemplateDefinition(String path) {
+        return TemplateRouteScanner.getDefinition(path);
+    }
 
-            try {
-                Class<?> cls = autoDef.getSourceClass();
-                // Procura um método public static Map<String,Object> buildModel()
-                Method m = cls.getMethod("buildModel", (Class<?>[]) null);
+    /**
+     * Hook 2: se não encontrar uma rota, verificamos as rotas manuais.
+     */
+    @Override
+    protected String handleNoDefinitionFound(String path, HttpRequest request) {
+        var manual = templateRoutes.get(path);
+        if (manual != null) {
+            return manual.apply(request);
+        }
+        return null; // não achou
+    }
 
-                // Se achou o método, invoca
-                if (m.getReturnType().equals(Map.class)) {
-                    // Invoca método estático
-                    @SuppressWarnings("unchecked")
-                    Map<String,Object> res = (Map<String,Object>) m.invoke(null);
-                    model = res != null ? res : Map.of();
-                }
-            } catch (NoSuchMethodException e) {
-                // Não tem buildModel(), então model = Map.of()
-            } catch (Exception e) {
-                e.printStackTrace();
-                return "Erro ao invocar buildModel: " + e.getMessage();
-            }
-
-            // Renderiza
+    /**
+     * Hook 4: agora usando Strategy para gerar a saída (HTML ou JSON).
+     */
+    @Override
+    protected String renderTemplate(TemplateAutoDefinition def, Map<String, Object> model, HttpRequest request) {
+        try {
+            // 1) Escolher a Strategy
             String acceptHeader = request.getHeader("Accept");
+            ResponseStrategy strategy = selectStrategy(acceptHeader);
 
-            if (acceptHeader != null && acceptHeader.contains("application/json")) {
-                try {
-
-
-                    ObjectMapper objectMapper = new ObjectMapper();
-                    return objectMapper.writeValueAsString(model); // Retorna JSON
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    return "{\"error\": \"Falha ao converter JSON\"}";
-                }
-            }
-
-            // Se não for JSON, renderiza HTML normalmente
-            return TemplateRenderer.render(autoDef.getTemplateName(), model);
+            // 2) Gerar resposta com a Strategy
+            return strategy.generateResponse(def, model);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "{\"error\":\"Falha ao gerar resposta.\"}";
         }
+    }
 
-        // 2) Se não tiver route auto, verifica rotas manuais
-        var handler = templateRoutes.get(path);
-        if (handler != null) {
-            return handler.apply(request);
+    /**
+     * Método auxiliar para escolher a Strategy de saída (JSON ou HTML).
+     * Você pode adicionar mais formatos se quiser.
+     */
+    private ResponseStrategy selectStrategy(String acceptHeader) {
+        if (acceptHeader != null && acceptHeader.contains("application/json")) {
+            // Se o header Accept contém "application/json", escolhemos JSON
+            return new JsonResponseStrategy();
         }
-
-        // 3) Se não achar, retorna erro
-        // 3) Se não achar rota de template, retorne null:
-        return null;
-
+        // Caso contrário, HTML
+        return new HtmlResponseStrategy();
     }
 }
