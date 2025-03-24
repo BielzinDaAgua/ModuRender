@@ -12,11 +12,14 @@ public class HomeController {
 
     @Route(path = "/hello", method = "GET")
     public String sayHello(HttpRequest req, HttpResponse resp) {
+
         return "Olá, essa rota é pública! Você pode usar /login para se autenticar.";
     }
 
     @Route(path = "/login", method = "GET")
     public String exibirFormLogin(HttpRequest req, HttpResponse resp) {
+        resp.setContentType("text/html");  // <--- essencial!
+
         return "<html><body>"
                 + "<form method='POST' action='/login'>"
                 + "User: <input name='user'><br>"
@@ -25,6 +28,8 @@ public class HomeController {
                 + "</form>"
                 + "</body></html>";
     }
+
+
 
     @Route(path = "/login", method = "POST")
     public String doLogin(HttpRequest req, HttpResponse resp) {
@@ -46,6 +51,7 @@ public class HomeController {
     @Route(path = "/admin/painel", method = "GET")
     public String adminPanel(HttpRequest req, HttpResponse resp) {
         String user = (String) req.getRawRequest().getAttribute("authUser");
+
         return "Bem-vindo ao painel admin, " + user + "!";
     }
 

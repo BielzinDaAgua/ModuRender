@@ -50,21 +50,21 @@ public class FrameworkServlet extends HttpServlet {
             String base = def.getBasePath();
             var handler = new CrudHandler(def.getEntityClass());
 
-            // GET /base
             routeDefinitions.add(new RouteDefinition("GET", base,
-                    new RouteCommandFunctional((req, resp) -> handler.listAll(req, resp))));
-            // GET /base/{id}
+                    new RouteCommandFunctional((req, resp) -> handler.listAll(req, resp)), true));
+
             routeDefinitions.add(new RouteDefinition("GET", base + "/{id}",
-                    new RouteCommandFunctional((req, resp) -> handler.findById(req, resp))));
-            // POST /base
+                    new RouteCommandFunctional((req, resp) -> handler.findById(req, resp)), true));
+
             routeDefinitions.add(new RouteDefinition("POST", base,
-                    new RouteCommandFunctional((req, resp) -> handler.create(req, resp))));
-            // PUT /base/{id}
+                    new RouteCommandFunctional((req, resp) -> handler.create(req, resp)), true));
+
             routeDefinitions.add(new RouteDefinition("PUT", base + "/{id}",
-                    new RouteCommandFunctional((req, resp) -> handler.update(req, resp))));
-            // DELETE /base/{id}
+                    new RouteCommandFunctional((req, resp) -> handler.update(req, resp)), true));
+
             routeDefinitions.add(new RouteDefinition("DELETE", base + "/{id}",
-                    new RouteCommandFunctional((req, resp) -> handler.delete(req, resp))));
+                    new RouteCommandFunctional((req, resp) -> handler.delete(req, resp)), true));
+
 
             System.out.println("🔄 CRUD rotas registradas: " + base);
         }
@@ -83,6 +83,8 @@ public class FrameworkServlet extends HttpServlet {
         if (path == null) path = "/";
         System.out.println("Método HTTP: " + method);
         System.out.println("Caminho: " + path);
+
+
 
         // Filtro de autenticação (exemplo)
         CookieAuthFilter authChecker = new CookieAuthFilter();
@@ -152,15 +154,15 @@ public class FrameworkServlet extends HttpServlet {
      * Se você estiver usando 'MethodRouteCommand', por exemplo, pode checar a classe interna.
      */
     private boolean isRestControllerCommand(RouteCommand command) {
-        if (command instanceof MethodRouteCommand mrc) {
-            return mrc.getControllerInstance().getClass().isAnnotationPresent(RestController.class);
-        }
-        if (command instanceof RouteCommandFunctional) {
-            // No caso RouteCommandFunctional, sempre retorna JSON (ou ajuste sua lógica)
-            return true;
+        for (RouteDefinition def : routeDefinitions) {
+            if (def.getCommand().equals(command)) {
+                return def.isRest();
+            }
         }
         return false;
     }
+
+
 
 
     /**

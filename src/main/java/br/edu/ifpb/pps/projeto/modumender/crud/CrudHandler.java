@@ -4,14 +4,15 @@ import br.edu.ifpb.pps.projeto.modumender.dao.DAOFactory;
 import br.edu.ifpb.pps.projeto.modumender.dao.GenericDAO;
 import br.edu.ifpb.pps.projeto.modumender.http.HttpRequest;
 import br.edu.ifpb.pps.projeto.modumender.http.HttpResponse;
-import java.sql.SQLException;
+import br.edu.ifpb.pps.projeto.modumender.rest.JsonUtil;
+import br.edu.ifpb.pps.projeto.modumender.util.ValidationUtil;
+import br.edu.ifpb.pps.projeto.modumender.util.ValidationException;
 
-/**
- * Handler genérico para as operações CRUD
- * (listAll, findById, create, update, delete).
- * Precisaria de "model binding" para create/update se quiser
- * popular automaticamente.
- */
+import java.io.BufferedReader;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.stream.Collectors;
+
 public class CrudHandler {
 
     private final Class<?> entityClass;
@@ -23,9 +24,9 @@ public class CrudHandler {
     public Object listAll(HttpRequest req, HttpResponse resp) {
         try {
             GenericDAO<?> dao = DAOFactory.createDAO(entityClass);
-            var lista = dao.findAll();
-            return "List of " + entityClass.getSimpleName()
-                    + ": count=" + lista.size();
+            List<?> lista = dao.findAll();
+            resp.setContentType("application/json");
+            return lista;
         } catch (SQLException e) {
             e.printStackTrace();
             resp.setStatus(500);
@@ -40,11 +41,14 @@ public class CrudHandler {
 
             GenericDAO<?> dao = DAOFactory.createDAO(entityClass);
             Object obj = dao.findById(id);
+
             if (obj == null) {
                 resp.setStatus(404);
-                return entityClass.getSimpleName() + " not found, id=" + id;
+                return entityClass.getSimpleName() + " não encontrado (id=" + id + ")";
             }
-            return obj.toString(); // ou converter pra JSON
+
+            resp.setContentType("application/json");
+            return obj;
         } catch (Exception e) {
             e.printStackTrace();
             resp.setStatus(500);
@@ -54,11 +58,23 @@ public class CrudHandler {
 
     public Object create(HttpRequest req, HttpResponse resp) {
         try {
-            Object newObj = entityClass.getDeclaredConstructor().newInstance();
-            // TODO: model binding...
+            String body = req.getRawRequest().getReader().lines().collect(Collectors.joining());
+
+            Object newObj = JsonUtil.fromJson(body, entityClass);
+
+            try {
+                ValidationUtil.validate(newObj);
+            } catch (ValidationException ve) {
+                resp.setStatus(400);
+                return "Erro de validação: " + ve.getMessage();
+            }
+
             GenericDAO dao = DAOFactory.createDAO(entityClass);
             dao.save(newObj);
-            return "Created " + entityClass.getSimpleName();
+
+            resp.setStatus(201);
+            resp.setContentType("application/json");
+            return newObj;
         } catch (Exception e) {
             e.printStackTrace();
             resp.setStatus(500);
@@ -70,16 +86,31 @@ public class CrudHandler {
         try {
             String idStr = req.getPathParam("id");
             int id = Integer.parseInt(idStr);
+            String body = req.getRawRequest().getReader().lines().collect(Collectors.joining());
+
+            Object updatedObj = JsonUtil.fromJson(body, entityClass);
 
             GenericDAO dao = DAOFactory.createDAO(entityClass);
-            Object obj = dao.findById(id);
-            if (obj == null) {
+            Object existingObj = dao.findById(id);
+
+            if (existingObj == null) {
                 resp.setStatus(404);
-                return entityClass.getSimpleName() + " not found, id=" + id;
+                return entityClass.getSimpleName() + " não encontrado (id=" + id + ")";
             }
-            // TODO: model binding p/ atualizar fields
-            dao.save(obj);
-            return "Updated id=" + id;
+
+            // Define o ID no objeto atualizado via reflexão
+            entityClass.getDeclaredMethod("setId", Integer.class).invoke(updatedObj, id);
+
+            try {
+                ValidationUtil.validate(updatedObj);
+            } catch (ValidationException ve) {
+                resp.setStatus(400);
+                return "Erro de validação: " + ve.getMessage();
+            }
+
+            dao.update(updatedObj);
+            resp.setContentType("application/json");
+            return updatedObj;
         } catch (Exception e) {
             e.printStackTrace();
             resp.setStatus(500);
@@ -96,10 +127,12 @@ public class CrudHandler {
             Object obj = dao.findById(id);
             if (obj == null) {
                 resp.setStatus(404);
-                return "Not found to delete, id=" + id;
+                return entityClass.getSimpleName() + " não encontrado (id=" + id + ")";
             }
+
             dao.deleteById(id);
-            return "Deleted id=" + id;
+            resp.setStatus(200);
+            return entityClass.getSimpleName() + " deletado com sucesso (id=" + id + ")";
         } catch (Exception e) {
             e.printStackTrace();
             resp.setStatus(500);
