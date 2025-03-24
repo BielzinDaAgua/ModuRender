@@ -16,6 +16,7 @@ public class ConexaoDB {
     private static String USER;
     private static String PASSWORD;
 
+   // Carregue as credenciais do banco uma única vez durante a inicialização da aula.
     static {
         try {
             // Carrega propriedades do arquivo application.properties
@@ -30,8 +31,9 @@ public class ConexaoDB {
         }
     }
 
-    private ConexaoDB() {}
+    private ConexaoDB() {} //Impede que a classe seja instanciada diretamente.
 
+    // Padrão Singleton - Garante que só existe uma única instância de conexão no sistema.
     public static Connection getInstance() throws SQLException {
         if (conexao == null || conexao.isClosed()) {
             conexao = DriverManager.getConnection(URL, USER, PASSWORD);
