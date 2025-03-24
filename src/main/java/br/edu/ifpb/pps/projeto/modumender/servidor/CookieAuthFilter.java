@@ -21,6 +21,9 @@ public class CookieAuthFilter {
      * significando que devemos encerrar a request.
      * Se retornar false, podemos prosseguir normalmente.
      */
+
+    //doAuthCheck-Verifica se a requisição tem um cookie de autenticação válido
+    //Se o token estiver ausente ou for inválido, a requisição é interrompida imediatamente ( return true).
     public boolean doAuthCheck(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String path = req.getRequestURI();
 
@@ -47,6 +50,7 @@ public class CookieAuthFilter {
         }
 
         // Se válido, coloca o usuário no request
+        //Ele adiciona informações à requisição para uso posterior  - padrão Intercepting Filter
         req.setAttribute("authUser", user);
         return false; // Não intercepta, pode prosseguir
     }

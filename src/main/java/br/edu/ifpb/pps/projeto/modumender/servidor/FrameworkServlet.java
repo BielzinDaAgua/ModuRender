@@ -7,6 +7,7 @@ import br.edu.ifpb.pps.projeto.modumender.controller.ControllerScanner;
 import br.edu.ifpb.pps.projeto.modumender.crud.CrudScanner;
 import br.edu.ifpb.pps.projeto.modumender.crud.CrudHandler;
 import br.edu.ifpb.pps.projeto.modumender.crud.CrudResourceDefinition;
+import br.edu.ifpb.pps.projeto.modumender.crud.DefaultCrudResourceFactory;
 import br.edu.ifpb.pps.projeto.modumender.http.HttpRequest;
 import br.edu.ifpb.pps.projeto.modumender.http.HttpResponse;
 import br.edu.ifpb.pps.projeto.modumender.template.TemplateRouteHandler;
@@ -27,6 +28,9 @@ public class FrameworkServlet extends HttpServlet {
 
     private static final List<RouteDefinition> routeDefinitions = new ArrayList<>();
 
+    //IMPORT PARA O PADRÃO
+    private static final List<CrudResourceDefinition> crudDefinitions = new ArrayList<>();
+
     @Override
     public void init() {
         System.out.println("FrameworkServlet init");
@@ -34,7 +38,14 @@ public class FrameworkServlet extends HttpServlet {
         ControllerScanner.scanControllers("br.edu.ifpb.pps.projeto.modumender.controller");
         routeDefinitions.addAll(ControllerScanner.getRouteDefinitions());
 
-        CrudScanner.scanCrudResources("br.edu.ifpb.pps.projeto.modumender.resources");
+        // Criando a instância do scanner e passando a fábrica //caio
+        //para se adequar ao padrão  Factory Method
+        CrudScanner crudScanner = new CrudScanner(new DefaultCrudResourceFactory());
+        crudScanner.scanCrudResources("br.edu.ifpb.pps.projeto.modumender.resources");
+
+        // Adiciona os recursos CRUD escaneados
+        crudDefinitions.addAll(crudScanner.getDefinitions());
+
 
         for (CrudResourceDefinition def : CrudScanner.getDefinitions()) {
             String base = def.getBasePath();

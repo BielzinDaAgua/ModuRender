@@ -13,8 +13,14 @@ import java.util.Set;
 public class CrudScanner {
 
     private static final List<CrudResourceDefinition> definitions = new ArrayList<>();
+    private final CrudResourceFactory factory;
 
-    public static void scanCrudResources(String basePackage) {
+    public CrudScanner(CrudResourceFactory factory) {
+        this.factory = factory;
+    }
+
+    // Factory Method
+    public void scanCrudResources(String basePackage) {
         Reflections reflections = new Reflections(basePackage);
         Set<Class<?>> resources = reflections.getTypesAnnotatedWith(CrudResource.class);
 
@@ -23,7 +29,7 @@ public class CrudScanner {
             String path = ann.path();
             Class<?> entity = ann.entity();
 
-            CrudResourceDefinition def = new CrudResourceDefinition(path, entity);
+            CrudResourceDefinition def = factory.createCrudResource(path, entity);
             definitions.add(def);
 
             System.out.println("CRUD Resource: "

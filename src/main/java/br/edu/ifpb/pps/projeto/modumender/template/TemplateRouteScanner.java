@@ -8,7 +8,7 @@ public class TemplateRouteScanner {
     private static final Map<String, TemplateAutoDefinition> routes = new HashMap<>();
 
     static {
-        // Escaneia o pacote "br.edu.ifpb.pps.projeto.modumender.views"
+        //Escaneia o pacote "br.edu.ifpb.pps.projeto.modumender.views"
         Reflections reflections = new Reflections("br.edu.ifpb.pps.projeto.modumender.views");
         Set<Class<?>> annotated = reflections.getTypesAnnotatedWith(TemplateRoute.class);
 
